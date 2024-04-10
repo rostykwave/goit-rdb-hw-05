@@ -1,0 +1,59 @@
+p1
+
+SELECT od.id, od.order_id, od.product_id, od.quantity, 
+       (SELECT o.customer_id FROM orders o WHERE o.id = od.order_id) AS customer_id
+FROM order_details od;
+
+p2
+SELECT *
+FROM order_details
+WHERE order_id IN (
+    SELECT order_id
+    FROM orders
+    WHERE shipper_id = 3
+);
+
+p3
+SELECT AVG(quantity) AS average_quantity
+FROM (
+ SELECT quantity, order_id
+ FROM order_details
+ WHERE quantity > 10
+) AS filtered_order_details
+GROUP BY order_id;
+
+
+p4
+WITH temp AS (
+    SELECT quantity, order_id
+    FROM order_details
+    WHERE quantity > 10
+)
+SELECT AVG(quantity) AS average_quantity
+FROM temp
+GROUP BY order_id;
+
+
+p5
+DROP FUNCTION IF EXISTS divide_parameters;
+
+DELIMITER //
+
+CREATE FUNCTION divide_parameters(param1 FLOAT, param2 FLOAT)
+RETURNS FLOAT
+DETERMINISTIC
+BEGIN
+    RETURN param1 / param2;
+END//
+
+DELIMITER ;
+
+
+
+SELECT order_id, divide_parameters(quantity, 2.0) AS divided_quantity
+FROM order_details;
+
+
+
+
+
